@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>Controle do Veículo</title>
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
     <div id="toast"></div>
@@ -29,12 +29,10 @@
             <input id="loginPass" type="password" autocomplete="current-password" placeholder="ex: 1234">
           </label>
           <button class="btn primary" id="btnLogin">Entrar</button>
-          <button class="btn ghost" id="btnSetup">Resetar Dados (Setup)</button>
         </div>
 
         <div class="hint">
-          Dica: Use <b>admin</b> / <b>1234</b>. <br>
-          Seus dados estão seguros na nuvem (Supabase).
+          Seus dados estão sincronizados na nuvem (Supabase).
         </div>
       </div>
     </div>
@@ -180,9 +178,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <script src="app.js"></script>
   </body>
 </html>
