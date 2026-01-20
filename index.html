@@ -1,13 +1,188 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-<head>
+  <head>
     <meta charset="UTF-8">
-    <title>Controle Veicular</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Controle do Veículo</title>
     <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <h1>Painel de Controle</h1>
-    <button onclick="alert('Funciona!')">Teste</button>
+  </head>
+  <body>
+    <div id="toast"></div>
+
+    <div id="loginView" class="center">
+      <div class="card auth-card">
+        <div class="brand">
+          <div class="logo">🚗</div>
+          <div>
+            <div class="title">Controle do Veículo</div>
+            <div class="subtitle">Gastos • Consumo • Relatórios</div>
+          </div>
+        </div>
+
+        <div class="grid gap">
+          <label class="field">
+            <span>Usuário</span>
+            <input id="loginUser" type="text" autocomplete="username" placeholder="ex: admin">
+          </label>
+          <label class="field">
+            <span>Senha</span>
+            <input id="loginPass" type="password" autocomplete="current-password" placeholder="ex: 1234">
+          </label>
+          <button class="btn primary" id="btnLogin">Entrar</button>
+          <button class="btn ghost" id="btnSetup">Resetar Dados (Setup)</button>
+        </div>
+
+        <div class="hint">
+          Dica: Use <b>admin</b> / <b>1234</b>. <br>
+          Seus dados estão seguros na nuvem (Supabase).
+        </div>
+      </div>
+    </div>
+
+    <div id="appView" class="app hidden">
+      <aside class="sidebar">
+        <div class="side-top">
+          <div class="side-brand">
+            <div class="logo small">🚗</div>
+            <div>
+              <div class="side-title">Controle</div>
+              <div class="side-sub" id="userMini"></div>
+            </div>
+          </div>
+
+          <div class="side-select">
+            <label class="field">
+              <span>Veículo</span>
+              <select id="vehicleSelect"></select>
+            </label>
+
+            <label class="field">
+              <span>Mês</span>
+              <input id="monthSelect" type="month">
+            </label>
+          </div>
+        </div>
+
+        <nav class="menu">
+          <button class="menu-item active" data-route="dashboard">📊 Dashboard</button>
+          <button class="menu-item" data-route="lancamentos">🧾 Lançamentos</button>
+          <button class="menu-item" data-route="abastecimentos">⛽ Abastecimentos</button>
+          <button class="menu-item" data-route="manutencoes">🛠️ Manutenções</button>
+          <button class="menu-item" data-route="relatorios">📑 Relatórios</button>
+          <button class="menu-item" data-route="veiculos">🚘 Veículos</button>
+          <button class="menu-item" data-route="ajustes">⚙️ Ajustes</button>
+          <button class="menu-item" data-route="usuarios" id="btnMenuUsuarios">👥 Usuários</button>
+        </nav>
+
+        <div class="side-footer">
+          <button class="btn ghost full" id="btnLogout">Sair</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <button class="btn ghost mobile-only" id="btnToggleMenu">☰</button>
+          <div>
+            <div class="h1" id="pageTitle">Dashboard</div>
+            <div class="h2" id="pageSub">Resumo do mês selecionado</div>
+          </div>
+          <div class="top-actions">
+            <button class="btn primary" id="btnNew">+ Novo lançamento</button>
+          </div>
+        </header>
+
+        <section id="pageContent" class="content"></section>
+      </main>
+    </div>
+
+    <div id="modal" class="modal hidden">
+      <div class="modal-card">
+        <div class="modal-head">
+          <div class="modal-title" id="modalTitle">Novo lançamento</div>
+          <button class="btn ghost" id="btnCloseModal">✕</button>
+        </div>
+
+        <div class="grid2 gap">
+          <label class="field">
+            <span>Data</span>
+            <input id="fData" type="date">
+          </label>
+
+          <label class="field">
+            <span>Tipo</span>
+            <select id="fTipo"></select>
+          </label>
+
+          <div id="wrapCategoriaValor" class="grid2 gap" style="grid-column:1/-1">
+            <label class="field">
+              <span>Categoria</span>
+              <select id="fCategoria"></select>
+            </label>
+            <label class="field">
+              <span>Valor (R$)</span>
+              <input id="fValor" type="number" step="0.01" placeholder="0,00">
+            </label>
+          </div>
+
+          <div id="wrapServicos" class="hidden" style="grid-column:1/-1">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 10px 0">
+              <div style="font-weight:900">Serviços da manutenção</div>
+              <button class="btn ghost" type="button" id="btnAddServico">+ Adicionar serviço</button>
+            </div>
+            <div class="card" style="padding:10px;border-radius:14px;background:rgba(7,10,22,.25);border:1px solid rgba(29,42,87,.6)">
+              <table class="table" style="border:none">
+                <thead>
+                  <tr>
+                    <th>Serviço/Categoria</th>
+                    <th style="width:160px">Valor (R$)</th>
+                    <th style="width:90px">Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="servicosBody"></tbody>
+              </table>
+              <div style="display:flex;justify-content:flex-end;margin-top:8px;font-weight:900">
+                Total: <span id="servicosTotal" style="margin-left:8px">R$ 0,00</span>
+              </div>
+            </div>
+          </div>
+
+          <label class="field" id="wrapLitros">
+            <span>Litros</span>
+            <input id="fLitros" type="number" step="0.01" placeholder="0,00">
+          </label>
+
+          <label class="field">
+            <span>Odômetro (km)</span>
+            <input id="fOdo" type="number" step="1" placeholder="ex: 52340">
+          </label>
+
+          <label class="field">
+            <span>Local</span>
+            <select id="fLocal"></select>
+          </label>
+
+          <label class="field">
+            <span>Pagamento</span>
+            <select id="fPgto"></select>
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Descrição (opcional)</span>
+          <input id="fDesc" type="text" placeholder="ex: revisão de 50 mil km">
+        </label>
+
+        <div class="modal-actions">
+          <button class="btn ghost" id="btnCancel">Cancelar</button>
+          <button class="btn primary" id="btnSave">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script src="app.js"></script>
-</body>
+  </body>
 </html>
